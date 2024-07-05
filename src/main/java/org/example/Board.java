@@ -15,17 +15,18 @@ public class Board {
         this.ySize = ySize;
     }
 
-    public void activateTileAtCoord(Coordinate c) {
+    //returns true if bomb activated
+    public boolean activateTileAtCoord(Coordinate c) {
         //tile to be activated
 
-        System.out.println("Activating tile at: " + c);
+        //System.out.println("Activating tile at: " + c);
         Tile activeTile = this.getTileAt(c);
         if (activeTile.isRevealed()) {
 
         } else if (activeTile.isBomb()) {
             activeTile.setRevealed(true);
             System.out.println("You lose");
-            //lose
+            return true;
         } else if (activeTile.getNumBombsAdjacent() == 0){
             activeTile.setRevealed(true);
             ArrayList<Coordinate> adjcoords = this.getSurroundingTiles(c);
@@ -35,11 +36,12 @@ public class Board {
         } else {
             activeTile.setRevealed(true);
         }
+        return false;
     }
 
     //public void sweepReveal
 
-    public void initialiseBoard(int numMines) throws ExceptionInInitializerError{
+    public void regenerateBoard(int numMines) throws ExceptionInInitializerError{
         //If num mines greater than number of spaces, exit early
         if (numMines > this.xSize * this.ySize) {
             throw new ExceptionInInitializerError("Too many bombs for the board");
@@ -71,7 +73,6 @@ public class Board {
             int bombY = c.getY();
             this.tiles[bombY][bombX].setBomb(true);
             for (Coordinate c2 : this.getSurroundingTiles(c)) {
-                System.out.println("Hi" + c2.getX() + "-" + c2.getY());
                 this.getTileAt(c2).incrementBombCount();
             }
         }
@@ -80,14 +81,34 @@ public class Board {
     }
 
     public void renderBoard() {
+        //top of box
+        for (int x = 0;  x < this.xSize + 2; x++) {
+            System.out.print("-");
+        }
+        System.out.print("\n");
+
+        //render the tiles and vertical lines
         for (int i = 0; i < this.ySize; i++) {
+            System.out.print("|");
             for (int j = 0; j < this.xSize; j++){
 
-                System.out.printf("%-1s", tiles[i][j].getValue());
+                System.out.print(tiles[i][j].getValue());
             }
-            System.out.print("\n");
+            System.out.print("|" + "\n");
         }
-        System.out.println("\n--------------------------------\n");
+
+        //render bottom line
+        for (int x = 0;  x < this.xSize + 2; x++) {
+            System.out.print("-");
+        }
+
+        System.out.print("\n");
+
+
+        System.out.println("\n\n--------------------------------\n\n");
+
+
+
     }
 
     public ArrayList<Coordinate> getSurroundingTiles(Coordinate c) {
@@ -97,12 +118,24 @@ public class Board {
                 Coordinate newCoord = new Coordinate(c.getX() + dx, c.getY() + dy);
                 if ((dy != 0 || dx !=0) && this.isValidCoord(newCoord)) {
                     coords.add(newCoord);
-                    //System.out.println((x+dx+ "-" + y+dy));
+
                 }
             }
         }
-        System.out.println(coords);
+        //System.out.println(coords);
         return coords;
+    }
+
+    public boolean checkFinished() {
+        for (int i = 0; i < this.ySize; i++) {
+            for (int j = 0; j < this.xSize; j++) {
+                Tile tileToCheck = this.getTileAt(new Coordinate(j,i));
+                if (!tileToCheck.isRevealed() && !tileToCheck.isBomb()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public Tile getTileAt(Coordinate c) {

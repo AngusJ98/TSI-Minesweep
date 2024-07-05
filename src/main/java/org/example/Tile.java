@@ -3,8 +3,7 @@ package org.example;
 public class Tile {
     private final Coordinate coordinate;
     private final String bombStr = "b";
-    private final String revealedStr = "⬛";
-    private final String hiddenStr = "⬜";
+    private final String hiddenStr = "#";
     private final String flagStr = "🚩";
     private boolean isFlagged;
     private boolean isBomb;
@@ -70,8 +69,4 @@ public class Tile {
             }
         }
     }
-}
-
-enum TileType {
-    BOMB, CLEAR
 }
